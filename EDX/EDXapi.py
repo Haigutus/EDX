@@ -15,20 +15,24 @@ from requests.auth import HTTPBasicAuth
 from zeep import Client
 from zeep.transports import Transport
 
+import urllib3
+urllib3.disable_warnings()
+
+
 class create_client():
 
-    def __init__(self, server, username = "", password = "", debug = False):
+    def __init__(self, server, username="", password="", debug=False):
 
         """At minimum server address or IP must be provided"""
 
         wsdl = '{}/ws/madesInWSInterface.wsdl'.format(server)
 
-        session = Session()
+        session        = Session()
         session.verify = False
-        session.auth = HTTPBasicAuth(username, password)
+        session.auth   = HTTPBasicAuth(username, password)
 
         transport = Transport(session = session)
-        client = Client(wsdl, transport = transport)
+        client    = Client(wsdl, transport = transport)
 
         client.debug = debug
 
@@ -44,15 +48,12 @@ class create_client():
 
         return message_id
 
-    def send_message(self, receiver_EIC, business_type, file_path, sender_EIC, message_id, converstaion_id):
+    def send_message(self, receiver_EIC, business_type, content, sender_EIC="", ba_message_id="", conversation_id=""):
         """SendMessage(message: ns0:SentMessage, conversationID: xsd:string) -> messageID: xsd:string
            ns0:SentMessage(receiverCode: xsd:string, businessType: xsd:string, content: xsd:base64Binary, senderApplication: xsd:string, baMessageID: xsd:string)"""
 
-        loaded_file = open(file_path, "rb")
-        file_text = loaded_file.read()
-
-        message_dic = {"receiverCode": receiver_EIC, "businessType": business_type, "content": file_text, "senderApplication": sender_EIC, "baMessageID": message_id}
-        message_id = self.service.SendMessage(message_dic, converstaion_id)
+        message_dic = {"receiverCode": receiver_EIC, "businessType": business_type, "content": content, "senderApplication": sender_EIC, "baMessageID": ba_message_id}
+        message_id  = self.service.SendMessage(message_dic, conversation_id)
 
         return message_id
 
@@ -61,16 +62,17 @@ class create_client():
            ns0:MessageStatus(messageID: xsd:string, state: ns0:MessageState, receiverCode: xsd:string, senderCode: xsd:string, businessType: xsd:string, senderApplication: xsd:string, baMessageID: xsd:string, sendTimestamp: xsd:dateTime, receiveTimestamp: xsd:dateTime, trace: ns0:MessageTrace)"""
 
         status = self.service.CheckMessageStatus(message_id)
+
         return status
 
-    def recieve_message(self, business_type, number_of_files_to_download):
+    def receive_message(self, business_type, download_message = True):
         """ReceiveMessage(businessType: xsd:string, downloadMessage: xsd:boolean) -> receivedMessage: ns0:ReceivedMessage, remainingMessagesCount: xsd:long"""
 
-        recieved_message = self.service.ReceiveMessage(business_type, number_of_files_to_download)
+        received_message = self.service.ReceiveMessage(business_type, download_message)
 
-        return recieved_message
+        return received_message
 
-    def confirm_recieved_message(self, message_id):
+    def confirm_received_message(self, message_id):
         """ConfirmReceiveMessage(messageID: xsd:string) -> messageID: xsd:string"""
 
         message_id = self.service.ConfirmReceiveMessage(message_id)
@@ -90,16 +92,20 @@ if __name__ == '__main__':
 
     service = create_client(server) #, username, password, debug = True)
 
+
     # Send message example
 
-    message_ID = service.send_message("10V000000000011Q", "RIMD", "C:/Users/kristjan.vilgo/Desktop/13681847.xml", "38V-EE-OPDM----S", "", "")
+    file_path = "C:/Users/kristjan.vilgo/Desktop/13681847.xml"
+    loaded_file = open(file_path, "rb")
+    file_text = loaded_file.read()
 
+    message_ID = service.send_message("10V000000000011Q", "RIMD", file_text)
     status = service.check_message_status(message_ID)
 
-    # Retrive message example
+    # Retrieve message example
 
-##    message = recieve_message("RIMD",1)
-##    confirm_recieved_message(message["receivedMessage"]["messageID"])
+    message = service.receive_message("RIMD")
+    service.confirm_received_message(message["receivedMessage"]["messageID"])
 
 
 # SERVICE DESCRIPTION

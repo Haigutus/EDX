@@ -22,13 +22,18 @@ or
     service = EDX.create_client("https://edx.elering.sise")
 
     # Send message
-    message_ID = service.send_message("10V000000000011Q", "RIMD", "C:/Users/kristjan.vilgo/Desktop/13681847.xml", "38V-EE-OPDM----S", "", "")
+
+    file_path   = "C:/Users/kristjan.vilgo/Desktop/13681847.xml"
+    loaded_file = open(file_path, "rb")
+    file_text   = loaded_file.read()
+
+    message_ID = service.send_message("10V000000000011Q", "RIMD", file_text)
 
     # Check message status
     status = service.check_message_status(message_ID)
 
-    # Retrive message
-    message = service.recieve_message("RIMD",1)
+    # Retrieve message
+    message = service.receive_message("RIMD")
     
-    # Confirm retrival of message
-    service.confirm_recieved_message(message["receivedMessage"]["messageID"])
+    # Confirm retrieval of message
+    service.confirm_received_message(message["receivedMessage"]["messageID"])
