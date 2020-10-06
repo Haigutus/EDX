@@ -65,7 +65,7 @@ class create_client():
 
         return status
 
-    def receive_message(self, business_type, download_message = True):
+    def receive_message(self, business_type="*", download_message = True):
         """ReceiveMessage(businessType: xsd:string, downloadMessage: xsd:boolean) -> receivedMessage: ns0:ReceivedMessage, remainingMessagesCount: xsd:long"""
 
         received_message = self.service.ReceiveMessage(business_type, download_message)
@@ -105,7 +105,7 @@ if __name__ == '__main__':
     # Retrieve message example
 
     message = service.receive_message("RIMD")
-    service.confirm_received_message(message["receivedMessage"]["messageID"])
+    service.confirm_received_message(message.receivedMessage.messageID)
 
 
 # SERVICE DESCRIPTION

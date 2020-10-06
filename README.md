@@ -35,20 +35,20 @@ or
     status = service.check_message_status(message_ID)
 
     # Retrieve message
-    message = service.receive_message("RIMD")
+    message = service.receive_message()
     
     # Confirm retrieval of message
-    service.confirm_received_message(message["receivedMessage"]["messageID"])
+    service.confirm_received_message(message.receivedMessage.messageID)
     
     # Save message on drive    
     file = open("report.xml", 'wb') # in case of excel use .xlsx and in case of PDF use .pdf and etc.
 
-    file.write(message['receivedMessage']['content'])
+    file.write(message.receivedMessage.content)
     file.close()
 
     # Save message as file like object in memory
 
-    file_like_object = io.BytesIO(message['receivedMessage']['content'])
+    file_like_object = io.BytesIO(message.receivedMessage.content)
 
     
     
