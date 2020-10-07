@@ -1,5 +1,5 @@
 # EDX
-Python implementation of EDX SOAP API (ENTSO-E Data Exchange Software - https://www.entsoe.eu/data/edx/) 
+Python implementation of EDX SOAP MADES API (ENTSO-E Data Exchange Software - https://www.entsoe.eu/data/edx/) 
 
 # Installation
 
