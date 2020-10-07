@@ -31,15 +31,14 @@ class create_client():
         session.verify = False
         session.auth   = HTTPBasicAuth(username, password)
 
-        transport = Transport(session = session)
-        client    = Client(wsdl, transport = transport)
+        transport = Transport(session=session)
+        client    = Client(wsdl, transport=transport)
 
         client.debug = debug
 
         self.service = client.create_service(
             '{http://mades.entsoe.eu/}MadesEndpointSOAP12',
             '{}/ws/madesInWSInterface'.format(server))
-
 
     def connectivity_test(self, reciver_EIC, business_type):
         """ConnectivityTest(receiverCode: xsd:string, businessType: xsd:string) -> messageID: xsd:string"""
@@ -65,7 +64,7 @@ class create_client():
 
         return status
 
-    def receive_message(self, business_type="*", download_message = True):
+    def receive_message(self, business_type="*", download_message=True):
         """ReceiveMessage(businessType: xsd:string, downloadMessage: xsd:boolean) -> receivedMessage: ns0:ReceivedMessage, remainingMessagesCount: xsd:long"""
 
         received_message = self.service.ReceiveMessage(business_type, download_message)
@@ -80,32 +79,31 @@ class create_client():
         return message_id
 
 
-
-
 # TEST
+
 
 if __name__ == '__main__':
 
-    server = "https://er-opdm.elering.sise"
-    #username = raw_input("UserName")
-    #password = raw_input("PassWord")
+    server = "https://er-opde-acceptance.elering.sise"
+    #username = input("UserName")
+    #password = input("PassWord")
 
-    service = create_client(server) #, username, password, debug = True)
-
+    service = create_client(server)#, username, password)
 
     # Send message example
 
-    file_path = "C:/Users/kristjan.vilgo/Desktop/13681847.xml"
-    loaded_file = open(file_path, "rb")
-    file_text = loaded_file.read()
+    file_path = "C:/Users/kristjan.vilgo/Downloads/13681847.xml"
 
-    message_ID = service.send_message("10V000000000011Q", "RIMD", file_text)
-    status = service.check_message_status(message_ID)
+    with open(file_path, "rb") as loaded_file:
+        message_ID = service.send_message("10V000000000011Q", "RIMD", loaded_file.read())
+
+    print(service.check_message_status(message_ID))
 
     # Retrieve message example
 
     message = service.receive_message("RIMD")
-    service.confirm_received_message(message.receivedMessage.messageID)
+    print(message)
+    #service.confirm_received_message(message.receivedMessage.messageID)
 
 
 # SERVICE DESCRIPTION
@@ -144,7 +142,3 @@ if __name__ == '__main__':
 ##     ns0:MessageTraceState
 ##     ns0:ReceivedMessage(messageID: xsd:string, receiverCode: xsd:string, senderCode: xsd:string, businessType: xsd:string, content: xsd:base64Binary, senderApplication: xsd:string, baMessageID: xsd:string)
 ##     ns0:SentMessage(receiverCode: xsd:string, businessType: xsd:string, content: xsd:base64Binary, senderApplication: xsd:string, baMessageID: xsd:string)
-
-
-
-
