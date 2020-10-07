@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 setup(
     name='EDX',
     #version='0.0.7',
-    version=versioneer.get_version(),
+    version=versioneer.get_version().split("+")[0],
     cmdclass=versioneer.get_cmdclass(),
     packages=['EDX'],
     long_description=long_description,
@@ -16,7 +16,7 @@ setup(
     license='GPL2',
     author='Kristjan Vilgo',
     author_email='kristjan.vilgo@gmail.com',
-    description='EDX SOAP API implementation in python',
+    description='EDX MADES SOAP API implementation in python',
     install_requires=[
         "requests", "zeep", 'urllib3'
     ],
