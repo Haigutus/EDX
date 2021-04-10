@@ -8,16 +8,17 @@
 # Copyright:   (c) kristjan.vilgo 2018
 # Licence:     GPL2
 #-------------------------------------------------------------------------------
-from __future__ import print_function
-
 from requests import Session
 from requests.auth import HTTPBasicAuth
 from zeep import Client
 from zeep.transports import Transport
+from zeep.plugins import HistoryPlugin
+from lxml import etree
 
 import urllib3
 urllib3.disable_warnings()
 
+# TODO - add logging
 
 class create_client():
 
@@ -32,13 +33,44 @@ class create_client():
         session.auth   = HTTPBasicAuth(username, password)
 
         transport = Transport(session=session)
-        client    = Client(wsdl, transport=transport)
+        self.history = HistoryPlugin()
+        self.debug = debug
+
+        if debug:
+            client = Client(wsdl, transport=transport, plugins=[self.history])
+        else:
+            client = Client(wsdl, transport=transport)
 
         client.debug = debug
 
         self.service = client.create_service(
             '{http://mades.entsoe.eu/}MadesEndpointSOAP12',
             '{}/ws/madesInWSInterface'.format(server))
+
+    def _print_last_message_exchange(self):
+        """Prints out last sent and received SOAP messages"""
+
+        if not self.debug:
+            print("WARNING - debug mode must be enabled for function _print_last_message_exchange to work")
+            return
+
+        messages = {"SENT":     self.history.last_sent,
+                    "RECEIVED": self.history.last_received}
+        print("-" * 50)
+
+        for message in messages:
+
+            print(f"### {message} HTTP HEADER ###")
+            print('\n' * 1)
+            print(messages[message]["http_headers"])
+            print('\n' * 1)
+            print(f"### {message} HTTP ENVELOPE START ###")
+            print('\n' * 1)
+            print(etree.tostring(messages[message]["envelope"], pretty_print=True).decode())
+            print(f"### {message} HTTP ENVELOPE END ###")
+            print('\n' * 1)
+
+        print("-" * 50)
 
     def connectivity_test(self, reciver_EIC, business_type):
         """ConnectivityTest(receiverCode: xsd:string, businessType: xsd:string) -> messageID: xsd:string"""
@@ -85,10 +117,10 @@ class create_client():
 if __name__ == '__main__':
 
     server = "https://er-opde-acceptance.elering.sise"
-    #username = input("UserName")
-    #password = input("PassWord")
+    username = input("UserName")
+    password = input("PassWord")
 
-    service = create_client(server)#, username, password)
+    service = create_client(server, username, password)
 
     # Send message example
 
