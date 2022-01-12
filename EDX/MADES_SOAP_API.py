@@ -31,6 +31,7 @@ class create_client():
         session        = Session()
         session.verify = False
         session.auth   = HTTPBasicAuth(username, password)
+        session.get(server)  # Preemptive auth, needed for keycloak
 
         transport = Transport(session=session)
         self.history = HistoryPlugin()
