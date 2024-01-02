@@ -20,18 +20,68 @@ urllib3.disable_warnings()
 
 # TODO - add logging
 
-class create_client():
+class Client:
+    """
+    This class is designed to create a client for interacting with an EDX MADES SOAP web service.
 
-    def __init__(self, server, username="", password="", debug=False):
+    The client is initialized with a server address and optional parameters for authentication,
+    debugging, and SSL verification. It sets up a session with the server and configures
+    the client for the specified web service using WSDL (Web Services Description Language).
+
+    Attributes:
+        service: The raw SOAP service object which can be used to make requests to the web service.
+        history: If debugging is enabled, this attribute stores the history of transactions.
+        debug: Boolean flag to enable or disable debugging.
+
+    Args:
+        server (str): The server address or IP where the web service is hosted.
+                      This parameter is mandatory.
+        username (str, optional): The username for HTTP basic authentication.
+                                  Defaults to None.
+        password (str, optional): The password for HTTP basic authentication.
+                                  Defaults to None.
+        debug (bool, optional): Flag to enable or disable debugging features.
+                                Defaults to False.
+        verify (bool, optional): Flag to enable or disable SSL verification.
+                                 Defaults to False.
+        auth (requests.auth.AuthBase, optional): Custom authentication mechanism. Any auth supported by "requests.auth" can be used.
+                                                 Defaults to None.
+
+    Methods:
+        _print_last_message_exchange: Prints the last sent and received SOAP messages.
+                                      Works only if debug mode is enabled.
+        connectivity_test: Performs a connectivity test with the given receiver EIC and business type.
+                           Returns a message ID.
+        send_message: Sends a message to the specified receiver with given parameters.
+                      Returns a message ID.
+        check_message_status: Checks the status of a message using its message ID.
+                              Returns the status of the message.
+        receive_message: Receives a message of a specified business type.
+                         Returns the received message and the remaining message count.
+        confirm_received_message: Confirms the receipt of a message using its message ID.
+                                  Returns the same message ID as confirmation.
+
+    Notes:
+        - If 'username' is provided, HTTP basic authentication is set up with 'username' and 'password' and will perform preemptive auth.
+        - If 'auth' is provided, it is used as the authentication mechanism.
+        - Enabling 'debug' logs detailed information about the raw SOAP requests and responses.
+    """
+
+    def __init__(self, server, username=None, password=None, debug=False, verify=False, auth=None):
 
         """At minimum server address or IP must be provided"""
 
         wsdl = '{}/ws/madesInWSInterface.wsdl'.format(server)
 
-        session        = Session()
-        session.verify = False
-        session.auth   = HTTPBasicAuth(username, password)
-        session.get(server)  # Preemptive auth, needed for keycloak
+        session = Session()
+        session.verify = verify
+
+        if username:
+            session.auth = HTTPBasicAuth(username, password)
+            session.get(server)  # Preemptive auth, needed for keycloak
+
+        if auth:
+            session.auth = auth
 
         transport = Transport(session=session)
         self.history = HistoryPlugin()
@@ -112,8 +162,11 @@ class create_client():
         return message_id
 
 
-# TEST
+# Deprecated class name
+create_client = Client
 
+
+# TEST
 
 if __name__ == '__main__':
 
@@ -121,7 +174,7 @@ if __name__ == '__main__':
     username = input("UserName")
     password = input("PassWord")
 
-    service = create_client(server, username, password)
+    service = Client(server, username, password)
 
     # Send message example
 

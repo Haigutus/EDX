@@ -19,7 +19,8 @@ or
 ### Initialise
     import EDX
 
-    service = EDX.create_client("https://edx.elering.sise")
+    service = EDX.Client("https://edx.elering.sise")
+*create_client is depricated*
 
 ### Send message
     with open("message.xml", "rb") as loaded_file:
@@ -35,7 +36,7 @@ or
     service.confirm_received_message(message.receivedMessage.messageID)
     
 ### Save message on drive
-*in case of excel use .xlsx and in case of PDF use .pdf and etc*
+*in case of Excel use .xlsx and in case of PDF use .pdf and etc*
 
     with open("report.xml", 'wb') as report_file:
         report_file.write(message.receivedMessage.content)
