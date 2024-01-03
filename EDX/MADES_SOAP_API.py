@@ -84,12 +84,12 @@ class Client:
             plugins.append(self.history)
 
         # Create SOAP client
-        wsdl = '{}/ws/madesInWSInterface.wsdl'.format(server)
+        wsdl = f'{server}/ws/madesInWSInterface.wsdl'
         client = SOAPClient(wsdl, transport=transport, plugins=plugins, wsse=wsse)
 
         self.service = client.create_service(
             binding_name='{http://mades.entsoe.eu/}MadesEndpointSOAP12',
-            address='{server}/ws/madesInWSInterface')
+            address=f'{server}/ws/madesInWSInterface')
 
     def _print_last_message_exchange(self):
         """Prints out last sent and received SOAP messages"""
