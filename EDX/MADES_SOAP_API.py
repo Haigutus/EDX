@@ -61,13 +61,15 @@ class Client:
 
         """At minimum server address or IP must be provided"""
 
+        wsdl = f'{server}/ws/madesInWSInterface.wsdl'
+
         # Authenticate HTTP session
         session = Session()
         session.verify = verify
 
         if username:
             session.auth = HTTPBasicAuth(username, password)
-            session.get(server)  # Preemptive auth, needed for keycloak
+            session.get(wsdl)  # Preemptive auth, needed for keycloak
 
         if auth:
             session.auth = auth
@@ -84,7 +86,6 @@ class Client:
             plugins.append(self.history)
 
         # Create SOAP client
-        wsdl = f'{server}/ws/madesInWSInterface.wsdl'
         client = SOAPClient(wsdl, transport=transport, plugins=plugins, wsse=wsse)
 
         self.service = client.create_service(
@@ -140,10 +141,13 @@ class Client:
 
         return status
 
-    def receive_message(self, business_type="*", download_message=True):
+    def receive_message(self, business_type="*", download_message=True, auto_confirm=False):
         """ReceiveMessage(businessType: xsd:string, downloadMessage: xsd:boolean) -> receivedMessage: ns0:ReceivedMessage, remainingMessagesCount: xsd:long"""
 
         received_message = self.service.ReceiveMessage(business_type, download_message)
+
+        if auto_confirm:
+            self.confirm_received_message(received_message.receivedMessage.messageID)
 
         return received_message
 
