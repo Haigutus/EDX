@@ -13,7 +13,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url='https://github.com/Haigutus/EDX',
-    license='GPL2',
+    license='MIT',
     author='Kristjan Vilgo',
     author_email='kristjan.vilgo@gmail.com',
     description='EDX MADES SOAP API implementation in python',
@@ -22,7 +22,7 @@ setup(
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+        "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ]
 )
